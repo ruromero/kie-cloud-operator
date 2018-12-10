@@ -141,7 +141,7 @@ func TestMergeServerDeploymentConfigs(t *testing.T) {
 	baseEnvCount := len(common.Servers[0].DeploymentConfigs[0].Spec.Template.Spec.Containers[0].Env)
 	prodEnvCount := len(prodEnv.Servers[0].DeploymentConfigs[0].Spec.Template.Spec.Containers[0].Env)
 
-	mergedDCs := mergeDeploymentConfigs(common.Servers[0].DeploymentConfigs, prodEnv.Servers[0].DeploymentConfigs)
+	mergedDCs := mergeDeploymentConfigs(&common.Servers[0].DeploymentConfigs, prodEnv.Servers[0].DeploymentConfigs)
 
 	assert.NotNil(t, mergedDCs, "Must have encountered an error, merged DCs should not be null")
 	assert.Len(t, mergedDCs, 2, "Expect 2 deployment descriptors but got %v", len(mergedDCs))
@@ -193,7 +193,7 @@ func TestMergeDeploymentconfigs(t *testing.T) {
 		*buildDC("overwrite-dc2"),
 		*buildDC("dc1"),
 	}
-	results := mergeDeploymentConfigs(baseline, overwrite)
+	results := mergeDeploymentConfigs(&baseline, overwrite)
 
 	assert.Equal(t, 2, len(results))
 	assert.Equal(t, overwrite[0], results[1])
@@ -219,7 +219,7 @@ func TestMergeDeploymentconfigs_Metadata(t *testing.T) {
 	overwrite[0].ObjectMeta.Annotations["foo"] = "replaced"
 	overwrite[0].ObjectMeta.Annotations["ping"] = "pong"
 
-	results := mergeDeploymentConfigs(baseline, overwrite)
+	results := mergeDeploymentConfigs(&baseline, overwrite)
 
 	assert.Equal(t, "replaced", results[0].ObjectMeta.Labels["foo"])
 	assert.Equal(t, "doe", results[0].ObjectMeta.Labels["john"])
@@ -247,7 +247,7 @@ func TestMergeDeploymentconfigs_TemplateMetadata(t *testing.T) {
 	overwrite[0].Spec.Template.ObjectMeta.Annotations["foo"] = "replaced"
 	overwrite[0].Spec.Template.ObjectMeta.Annotations["ping"] = "pong"
 
-	results := mergeDeploymentConfigs(baseline, overwrite)
+	results := mergeDeploymentConfigs(&baseline, overwrite)
 
 	assert.Equal(t, "replaced", results[0].Spec.Template.ObjectMeta.Labels["foo"])
 	assert.Equal(t, "doe", results[0].Spec.Template.ObjectMeta.Labels["john"])
@@ -284,7 +284,7 @@ func TestMergeDeploymentconfigs_Spec_Triggers(t *testing.T) {
 		Type: "ConfigChange",
 	})
 
-	results := mergeDeploymentConfigs(baseline, overwrite)
+	results := mergeDeploymentConfigs(&baseline, overwrite)
 
 	assert.Equal(t, 3, len(results[0].Spec.Triggers))
 	assert.Equal(t, appsv1.DeploymentTriggerType("ImageChange"), results[0].Spec.Triggers[0].Type)
@@ -310,7 +310,7 @@ func TestMergeDeploymentconfigs_Spec_Other(t *testing.T) {
 	overwrite[0].Spec.Test = true
 	overwrite[0].Spec.Replicas = 2
 
-	results := mergeDeploymentConfigs(baseline, overwrite)
+	results := mergeDeploymentConfigs(&baseline, overwrite)
 
 	assert.Equal(t, appsv1.DeploymentStrategyType("Other Strategy"), results[0].Spec.Strategy.Type)
 	assert.Equal(t, 3, len(results[0].Spec.Selector))
@@ -343,7 +343,7 @@ func TestMergeDeploymentconfigs_PodSpec_Volumes(t *testing.T) {
 		},
 	})
 
-	results := mergeDeploymentConfigs(baseline, overwrite)
+	results := mergeDeploymentConfigs(&baseline, overwrite)
 
 	assert.Equal(t, 3, len(results[0].Spec.Template.Spec.Volumes))
 	assert.Equal(t, "dc1-other-volume", results[0].Spec.Template.Spec.Volumes[2].Name)

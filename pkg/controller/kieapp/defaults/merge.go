@@ -42,7 +42,7 @@ func mergeCustomObject(baseline v1.CustomObject, overwrite v1.CustomObject) v1.C
 	object.ServiceAccounts = mergeServiceAccounts(baseline.ServiceAccounts, overwrite.ServiceAccounts)
 	object.Secrets = mergeSecrets(baseline.Secrets, overwrite.Secrets)
 	object.RoleBindings = mergeRoleBindings(baseline.RoleBindings, overwrite.RoleBindings)
-	object.DeploymentConfigs = mergeDeploymentConfigs(baseline.DeploymentConfigs, overwrite.DeploymentConfigs)
+	object.DeploymentConfigs = mergeDeploymentConfigs(&baseline.DeploymentConfigs, overwrite.DeploymentConfigs)
 	object.Services = mergeServices(baseline.Services, overwrite.Services)
 	object.Routes = mergeRoutes(baseline.Routes, overwrite.Routes)
 	return object
@@ -56,7 +56,7 @@ func mergePersistentVolumeClaims(baseline []corev1.PersistentVolumeClaim, overwr
 	} else {
 		baselineRefs := getPersistentVolumeClaimReferenceSlice(baseline)
 		overwriteRefs := getPersistentVolumeClaimReferenceSlice(overwrite)
-		slice := make([]corev1.PersistentVolumeClaim, combinedSize(baselineRefs, overwriteRefs))
+		slice := make([]corev1.PersistentVolumeClaim, combinedSize(&baselineRefs, &overwriteRefs))
 		err := mergeObjects(baselineRefs, overwriteRefs, slice)
 		if err != nil {
 			logrus.Errorf("%v", err)
@@ -82,7 +82,7 @@ func mergeServiceAccounts(baseline []corev1.ServiceAccount, overwrite []corev1.S
 	} else {
 		baselineRefs := getServiceAccountReferenceSlice(baseline)
 		overwriteRefs := getServiceAccountReferenceSlice(overwrite)
-		slice := make([]corev1.ServiceAccount, combinedSize(baselineRefs, overwriteRefs))
+		slice := make([]corev1.ServiceAccount, combinedSize(&baselineRefs, &overwriteRefs))
 		err := mergeObjects(baselineRefs, overwriteRefs, slice)
 		if err != nil {
 			logrus.Errorf("%v", err)
@@ -108,7 +108,7 @@ func mergeSecrets(baseline []corev1.Secret, overwrite []corev1.Secret) []corev1.
 	} else {
 		baselineRefs := getSecretReferenceSlice(baseline)
 		overwriteRefs := getSecretReferenceSlice(overwrite)
-		slice := make([]corev1.Secret, combinedSize(baselineRefs, overwriteRefs))
+		slice := make([]corev1.Secret, combinedSize(&baselineRefs, &overwriteRefs))
 		err := mergeObjects(baselineRefs, overwriteRefs, slice)
 		if err != nil {
 			logrus.Errorf("%v", err)
@@ -134,7 +134,7 @@ func mergeRoleBindings(baseline []rbacv1.RoleBinding, overwrite []rbacv1.RoleBin
 	} else {
 		baselineRefs := getRoleBindingReferenceSlice(baseline)
 		overwriteRefs := getRoleBindingReferenceSlice(overwrite)
-		slice := make([]rbacv1.RoleBinding, combinedSize(baselineRefs, overwriteRefs))
+		slice := make([]rbacv1.RoleBinding, combinedSize(&baselineRefs, &overwriteRefs))
 		err := mergeObjects(baselineRefs, overwriteRefs, slice)
 		if err != nil {
 			logrus.Errorf("%v", err)
@@ -152,26 +152,26 @@ func getRoleBindingReferenceSlice(objects []rbacv1.RoleBinding) []v1.OpenShiftOb
 	return slice
 }
 
-func mergeDeploymentConfigs(baseline []appsv1.DeploymentConfig, overwrite []appsv1.DeploymentConfig) []appsv1.DeploymentConfig {
+func mergeDeploymentConfigs(baseline *[]appsv1.DeploymentConfig, overwrite []appsv1.DeploymentConfig) []appsv1.DeploymentConfig {
 	if len(overwrite) == 0 {
-		return baseline
+		return *baseline
 	}
-	if len(baseline) == 0 {
+	if len(*baseline) == 0 {
 		return overwrite
 	}
-	baselineRefs := getDeploymentConfigReferenceSlice(baseline)
-	overwriteRefs := getDeploymentConfigReferenceSlice(overwrite)
+	baselineObjects := getAsOpenShiftObjectReference(baseline)
+	overwriteObjects := getAsOpenShiftObjectReference(&overwrite)
 	for overwriteIndex := range overwrite {
 		overwriteItem := &overwrite[overwriteIndex]
-		baselineIndex, _ := findOpenShiftObject(overwriteItem, baselineRefs)
+		baselineIndex, _ := findOpenShiftObject(overwriteItem, baselineObjects)
 		if baselineIndex >= 0 {
-			baselineItem := baseline[baselineIndex]
+			baselineItem := (*baseline)[baselineIndex]
 			err := mergo.Merge(&overwriteItem.ObjectMeta, baselineItem.ObjectMeta)
 			if err != nil {
 				logrus.Errorf("%v", err)
 				return nil
 			}
-			mergedSpec, err := mergeSpec(baselineItem.Spec, overwriteItem.Spec)
+			mergedSpec, err := mergeSpec(&baselineItem.Spec, overwriteItem.Spec)
 			if err != nil {
 				logrus.Errorf("%v", err)
 				return nil
@@ -179,34 +179,28 @@ func mergeDeploymentConfigs(baseline []appsv1.DeploymentConfig, overwrite []apps
 			overwriteItem.Spec = mergedSpec
 		}
 	}
-	slice := make([]appsv1.DeploymentConfig, combinedSize(baselineRefs, overwriteRefs))
-	err := mergeObjects(baselineRefs, overwriteRefs, slice)
+	dcs := make([]appsv1.DeploymentConfig, combinedSize(baselineObjects, overwriteObjects))
+	err := mergeObjects(*baselineObjects, *overwriteObjects, dcs)
 	if err != nil {
 		logrus.Errorf("%v", err)
 		return nil
 	}
-	return slice
+	return dcs
 
 }
 
-func mergeSpec(baseline appsv1.DeploymentConfigSpec, overwrite appsv1.DeploymentConfigSpec) (appsv1.DeploymentConfigSpec, error) {
+func mergeSpec(baseline *appsv1.DeploymentConfigSpec, overwrite appsv1.DeploymentConfigSpec) (appsv1.DeploymentConfigSpec, error) {
 	mergedTemplate, err := mergeTemplate(baseline.Template, overwrite.Template)
 	if err != nil {
 		return appsv1.DeploymentConfigSpec{}, err
 	}
 	overwrite.Template = mergedTemplate
 
-	mergedTriggers, err := mergeTriggers(baseline.Triggers, overwrite.Triggers)
-	if err != nil {
-		return appsv1.DeploymentConfigSpec{}, err
-	}
-	overwrite.Triggers = mergedTriggers
-
-	err = mergo.Merge(&baseline, overwrite, mergo.WithOverride)
+	err = mergo.Merge(baseline, overwrite, mergo.WithOverride, mergo.WithTransformers(deploymentTriggerPoliciesTransformer{}))
 	if err != nil {
 		return appsv1.DeploymentConfigSpec{}, nil
 	}
-	return baseline, nil
+	return *baseline, nil
 }
 
 func mergeTemplate(baseline *corev1.PodTemplateSpec, overwrite *corev1.PodTemplateSpec) (*corev1.PodTemplateSpec, error) {
@@ -231,40 +225,55 @@ func mergeTemplate(baseline *corev1.PodTemplateSpec, overwrite *corev1.PodTempla
 	return baseline, nil
 }
 
-func mergeTriggers(baseline appsv1.DeploymentTriggerPolicies, overwrite appsv1.DeploymentTriggerPolicies) (appsv1.DeploymentTriggerPolicies, error) {
-	var mergedTriggers []appsv1.DeploymentTriggerPolicy
-	for baselineIndex, baselineItem := range baseline {
-		idx, found := findDeploymentTriggerPolicy(baselineItem, overwrite)
+type deploymentTriggerPoliciesTransformer struct{}
+
+func (t deploymentTriggerPoliciesTransformer) Transformer(typ reflect.Type) func(dst, src reflect.Value) error {
+	if typ == reflect.TypeOf(appsv1.DeploymentTriggerPolicies{}) {
+		return func(dst, src reflect.Value) error {
+			if dst.CanSet() {
+				dstPolicies := dst.Addr().Interface().(*appsv1.DeploymentTriggerPolicies)
+				srcPolicies := src.Interface().(appsv1.DeploymentTriggerPolicies)
+				return mergeTriggers(dstPolicies, srcPolicies)
+			}
+			return nil
+		}
+	}
+	return nil
+}
+
+func mergeTriggers(baseline *appsv1.DeploymentTriggerPolicies, overwrite appsv1.DeploymentTriggerPolicies) error {
+	baselineTriggers := *baseline
+	for baselineIndex, baselineItem := range baselineTriggers {
+		idx, _ := findDeploymentTriggerPolicy(baselineItem, overwrite)
 		if idx == -1 {
 			logrus.Debugf("Not found, adding %v to slice\n", baselineItem)
 		} else {
-			logrus.Debugf("Will merge %v on top of %v\n", found, baselineItem)
+			logrus.Debugf("Will merge %v on top of %v\n", overwrite[idx], baselineItem)
 			if baselineItem.ImageChangeParams != nil {
-				if found.ImageChangeParams == nil {
-					found.ImageChangeParams = baselineItem.ImageChangeParams
+				if overwrite[idx].ImageChangeParams == nil {
+					overwrite[idx].ImageChangeParams = baselineItem.ImageChangeParams
 				} else {
-					mergedImageChangeParams, err := mergeImageChangeParams(*baselineItem.ImageChangeParams, *found.ImageChangeParams)
+					mergedImageChangeParams, err := mergeImageChangeParams(*baselineItem.ImageChangeParams, *overwrite[idx].ImageChangeParams)
 					if err != nil {
-						return nil, err
+						return err
 					}
-					found.ImageChangeParams = &mergedImageChangeParams
+					overwrite[idx].ImageChangeParams = &mergedImageChangeParams
 				}
 			}
-			err := mergo.Merge(&baseline[baselineIndex], found, mergo.WithOverride)
+			err := mergo.Merge(&(*baseline)[baselineIndex], overwrite[idx], mergo.WithOverride)
 			if err != nil {
-				return nil, err
+				return err
 			}
 		}
-		mergedTriggers = append(mergedTriggers, baseline[baselineIndex])
 	}
 	for overwriteIndex, overwriteItem := range overwrite {
-		idx, _ := findDeploymentTriggerPolicy(overwriteItem, mergedTriggers)
+		idx, _ := findDeploymentTriggerPolicy(overwriteItem, *baseline)
 		if idx == -1 {
 			logrus.Debugf("Not found, appending %v to slice\n", overwriteItem)
-			mergedTriggers = append(mergedTriggers, overwrite[overwriteIndex])
+			*baseline = append(*baseline, overwrite[overwriteIndex])
 		}
 	}
-	return mergedTriggers, nil
+	return nil
 }
 
 func mergeImageChangeParams(baseline appsv1.DeploymentTriggerImageChangeParams, overwrite appsv1.DeploymentTriggerImageChangeParams) (appsv1.DeploymentTriggerImageChangeParams, error) {
@@ -411,6 +420,14 @@ func getDeploymentConfigReferenceSlice(objects []appsv1.DeploymentConfig) []v1.O
 	return slice
 }
 
+func getAsOpenShiftObjectReference(objects *[]appsv1.DeploymentConfig) *[]v1.OpenShiftObject {
+	slice := make([]v1.OpenShiftObject, len(*objects))
+	for index := range *objects {
+		slice[index] = &(*objects)[index]
+	}
+	return &slice
+}
+
 func mergeServices(baseline []corev1.Service, overwrite []corev1.Service) []corev1.Service {
 	if len(overwrite) == 0 {
 		return baseline
@@ -421,7 +438,7 @@ func mergeServices(baseline []corev1.Service, overwrite []corev1.Service) []core
 		overwriteRefs := getServiceReferenceSlice(overwrite)
 		for overwriteIndex := range overwrite {
 			overwriteItem := &overwrite[overwriteIndex]
-			baselineIndex, _ := findOpenShiftObject(overwriteItem, baselineRefs)
+			baselineIndex, _ := findOpenShiftObject(overwriteItem, &baselineRefs)
 			if baselineIndex >= 0 {
 				baselineItem := baseline[baselineIndex]
 				err := mergo.Merge(&overwriteItem.ObjectMeta, baselineItem.ObjectMeta)
@@ -432,7 +449,7 @@ func mergeServices(baseline []corev1.Service, overwrite []corev1.Service) []core
 				overwriteItem.Spec.Ports = mergeServicePorts(baselineItem.Spec.Ports, overwriteItem.Spec.Ports)
 			}
 		}
-		slice := make([]corev1.Service, combinedSize(baselineRefs, overwriteRefs))
+		slice := make([]corev1.Service, combinedSize(&baselineRefs, &overwriteRefs))
 		err := mergeObjects(baselineRefs, overwriteRefs, slice)
 		if err != nil {
 			logrus.Errorf("%v", err)
@@ -492,7 +509,7 @@ func mergeRoutes(baseline []routev1.Route, overwrite []routev1.Route) []routev1.
 	} else {
 		baselineRefs := getRouteReferenceSlice(baseline)
 		overwriteRefs := getRouteReferenceSlice(overwrite)
-		slice := make([]routev1.Route, combinedSize(baselineRefs, overwriteRefs))
+		slice := make([]routev1.Route, combinedSize(&baselineRefs, &overwriteRefs))
 		err := mergeObjects(baselineRefs, overwriteRefs, slice)
 		if err != nil {
 			logrus.Errorf("%v", err)
@@ -510,9 +527,9 @@ func getRouteReferenceSlice(objects []routev1.Route) []v1.OpenShiftObject {
 	return slice
 }
 
-func combinedSize(baseline []v1.OpenShiftObject, overwrite []v1.OpenShiftObject) int {
+func combinedSize(baseline *[]v1.OpenShiftObject, overwrite *[]v1.OpenShiftObject) int {
 	count := 0
-	for _, object := range overwrite {
+	for _, object := range *overwrite {
 		_, found := findOpenShiftObject(object, baseline)
 		if found == nil && object.GetAnnotations()["delete"] != "true" {
 			//unique item with no counterpart in baseline, count it
@@ -522,7 +539,7 @@ func combinedSize(baseline []v1.OpenShiftObject, overwrite []v1.OpenShiftObject)
 			count--
 		}
 	}
-	count += len(baseline)
+	count += len(*baseline)
 	return count
 }
 
@@ -530,7 +547,7 @@ func mergeObjects(baseline []v1.OpenShiftObject, overwrite []v1.OpenShiftObject,
 	slice := reflect.ValueOf(objectSlice)
 	sliceIndex := 0
 	for _, object := range baseline {
-		_, found := findOpenShiftObject(object, overwrite)
+		_, found := findOpenShiftObject(object, &overwrite)
 		if found == nil {
 			slice.Index(sliceIndex).Set(reflect.ValueOf(object).Elem())
 			sliceIndex++
@@ -550,7 +567,7 @@ func mergeObjects(baseline []v1.OpenShiftObject, overwrite []v1.OpenShiftObject,
 	}
 	for _, object := range overwrite {
 		if object.GetAnnotations()["delete"] != "true" {
-			_, found := findOpenShiftObject(object, baseline)
+			_, found := findOpenShiftObject(object, &baseline)
 			if found == nil {
 				slice.Index(sliceIndex).Set(reflect.ValueOf(object).Elem())
 				sliceIndex++
@@ -560,8 +577,8 @@ func mergeObjects(baseline []v1.OpenShiftObject, overwrite []v1.OpenShiftObject,
 	return nil
 }
 
-func findOpenShiftObject(object v1.OpenShiftObject, slice []v1.OpenShiftObject) (int, v1.OpenShiftObject) {
-	for index, candidate := range slice {
+func findOpenShiftObject(object v1.OpenShiftObject, objects *[]v1.OpenShiftObject) (int, v1.OpenShiftObject) {
+	for index, candidate := range *objects {
 		if candidate.GetName() == object.GetName() {
 			return index, candidate
 		}
