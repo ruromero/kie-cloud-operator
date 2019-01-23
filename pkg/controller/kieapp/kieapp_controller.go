@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/kiegroup/kie-cloud-operator/pkg/controller/kieapp/status"
+
 	"github.com/kiegroup/kie-cloud-operator/pkg/apis/app/v1"
 	"github.com/kiegroup/kie-cloud-operator/pkg/controller/kieapp/constants"
 	"github.com/kiegroup/kie-cloud-operator/pkg/controller/kieapp/defaults"
@@ -57,21 +59,24 @@ func (reconciler *KieAppReconciler) Reconcile(request reconcile.Request) (reconc
 			return reconcile.Result{}, nil
 		}
 		// Error reading the object - requeue the request.
+		reconciler.updateStatusError(instance, v1.UnknownReason, err)
 		return reconcile.Result{}, err
 	}
 
 	log := log.With("kind", instance.Kind, "name", instance.Name, "namespace", instance.Namespace)
 
-	env, rResult, err := reconciler.NewEnv(instance)
+	env, rResult, err := reconciler.newEnv(instance)
 	if err != nil {
+		reconciler.updateStatusError(instance, v1.ConfigurationErrorReason, err)
 		return rResult, err
 	}
-
+	reconciler.updateStatus(instance, status.SetProvisioning)
 	listOps := &client.ListOptions{Namespace: instance.Namespace}
 	dcList := &oappsv1.DeploymentConfigList{}
 	err = reconciler.Service.List(context.TODO(), listOps, dcList)
 	if err != nil {
 		log.Warn("Failed to list dc's. ", err)
+		reconciler.updateStatusError(instance, v1.UnknownReason, err)
 		return reconcile.Result{}, err
 	}
 	dcNames := getDcNames(dcList.Items, instance)
@@ -103,6 +108,7 @@ func (reconciler *KieAppReconciler) Reconcile(request reconcile.Request) (reconc
 		for _, uDc := range dcUpdates {
 			rResult, err := reconciler.UpdateObj(&uDc)
 			if err != nil {
+				reconciler.updateStatusError(instance, v1.DeploymentFailedReason, err)
 				return rResult, err
 			}
 		}
@@ -120,15 +126,15 @@ func (reconciler *KieAppReconciler) Reconcile(request reconcile.Request) (reconc
 			return reconcile.Result{}, nil
 		}
 		// Error reading the object - requeue the request.
+		reconciler.updateStatusError(instance, v1.UnknownReason, err)
 		return reconcile.Result{}, err
 	}
-
-	instance.Status.Deployments = dcNames
+	reconciler.updateStatusDeployments(instance, dcNames)
 	// Update CR if needed
 	if !reflect.DeepEqual(instance, cachedInstance) {
 		return reconciler.UpdateObj(instance)
 	}
-
+	reconciler.updateStatus(instance, status.SetDeployed)
 	return reconcile.Result{}, nil
 }
 
@@ -261,7 +267,7 @@ func (reconciler *KieAppReconciler) dcUpdateCheck(current, new oappsv1.Deploymen
 	return dcUpdates
 }
 
-func (reconciler *KieAppReconciler) NewEnv(cr *v1.KieApp) (v1.Environment, reconcile.Result, error) {
+func (reconciler *KieAppReconciler) newEnv(cr *v1.KieApp) (v1.Environment, reconcile.Result, error) {
 	env, err := defaults.GetEnvironment(cr, reconciler.Service)
 	if err != nil {
 		return env, reconcile.Result{Requeue: true}, err
@@ -274,15 +280,13 @@ func (reconciler *KieAppReconciler) NewEnv(cr *v1.KieApp) (v1.Environment, recon
 			if checkTLS(rt.Spec.TLS) {
 				// use host of first tls route in env template
 				consoleCN = reconciler.GetRouteHost(rt, cr)
-				// set consoleHost in CR status to console route host set above
-				cr.Status.ConsoleHost = fmt.Sprintf("https://%s", consoleCN)
+				reconciler.updateStatusHost(cr, fmt.Sprintf("https://%s", consoleCN))
 				break
 			}
 		}
 		if consoleCN == "" {
 			consoleCN = cr.Name
-			// set consoleHost in CR status to console route host set above
-			cr.Status.ConsoleHost = fmt.Sprintf("http://%s", consoleCN)
+			reconciler.updateStatusHost(cr, fmt.Sprintf("http://%s", consoleCN))
 		}
 
 		defaults.ConfigureHostname(&env.Console, cr, consoleCN)
@@ -437,6 +441,7 @@ func (reconciler *KieAppReconciler) CreateCustomObjects(object v1.CustomObject, 
 			return reconcile.Result{}, err
 		}
 	}
+
 	return reconcile.Result{}, nil
 }
 
@@ -562,4 +567,25 @@ func (reconciler *KieAppReconciler) GetRouteHost(route routev1.Route, cr *v1.Kie
 	}
 
 	return found.Spec.Host
+}
+
+func (reconciler *KieAppReconciler) updateStatus(instance *v1.KieApp, statusFn func(*v1.KieApp) bool) {
+	if statusFn(instance) {
+		reconciler.Service.UpdateStatus(context.TODO(), instance)
+	}
+}
+
+func (reconciler *KieAppReconciler) updateStatusDeployments(instance *v1.KieApp, dcNames []string) {
+	status.SetDeployments(instance, dcNames)
+	reconciler.Service.UpdateStatus(context.TODO(), instance)
+}
+
+func (reconciler *KieAppReconciler) updateStatusError(instance *v1.KieApp, reason v1.ReasonType, err error) {
+	status.SetFailed(instance, reason, err)
+	reconciler.Service.UpdateStatus(context.TODO(), instance)
+}
+
+func (reconciler *KieAppReconciler) updateStatusHost(instance *v1.KieApp, consoleHost string) {
+	instance.Status.ConsoleHost = consoleHost
+	reconciler.Service.UpdateStatus(context.TODO(), instance)
 }

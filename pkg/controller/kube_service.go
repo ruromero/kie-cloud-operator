@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+
 	imagev1 "github.com/openshift/client-go/image/clientset/versioned/typed/image/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	cachev1 "sigs.k8s.io/controller-runtime/pkg/cache"
@@ -45,6 +46,10 @@ func (service *KubernetesPlatformService) List(ctx context.Context, opts *client
 
 func (service *KubernetesPlatformService) Update(ctx context.Context, obj runtime.Object) error {
 	return service.client.Update(ctx, obj)
+}
+
+func (service *KubernetesPlatformService) UpdateStatus(ctx context.Context, obj runtime.Object) error {
+	return service.client.Status().Update(ctx, obj)
 }
 
 func (service *KubernetesPlatformService) GetCached(ctx context.Context, key clientv1.ObjectKey, obj runtime.Object) error {

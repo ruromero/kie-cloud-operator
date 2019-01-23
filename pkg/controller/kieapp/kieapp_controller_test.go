@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 
+	"k8s.io/apimachinery/pkg/runtime"
+
 	"github.com/kiegroup/kie-cloud-operator/pkg/apis/app/v1"
 	"github.com/kiegroup/kie-cloud-operator/pkg/controller/kieapp/constants"
 	"github.com/kiegroup/kie-cloud-operator/pkg/controller/kieapp/defaults"
@@ -14,7 +16,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 )
 
 func TestKieAppDefaults(t *testing.T) {
@@ -214,7 +215,7 @@ func TestGenerateSecret(t *testing.T) {
 		return scheme
 	}
 	reconciler := &KieAppReconciler{mockService}
-	env, _, err = reconciler.NewEnv(cr)
+	env, _, err = reconciler.newEnv(cr)
 	assert.Nil(t, err, "Error creating a new environment")
 	assert.Len(t, env.Console.Secrets, 1, "One secret should be generated for the trial workbench")
 }
@@ -236,7 +237,7 @@ func TestConsoleHost(t *testing.T) {
 		return scheme
 	}
 	reconciler := &KieAppReconciler{mockService}
-	_, _, err = reconciler.NewEnv(cr)
+	_, _, err = reconciler.newEnv(cr)
 	assert.Nil(t, err, "Error creating a new environment")
 	assert.Equal(t, fmt.Sprintf("http://%s", cr.Name), cr.Status.ConsoleHost, "spec.commonConfig.consoleHost should be URL from the resulting workbench route host")
 }
