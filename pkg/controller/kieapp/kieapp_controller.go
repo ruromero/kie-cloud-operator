@@ -70,7 +70,6 @@ func (reconciler *KieAppReconciler) Reconcile(request reconcile.Request) (reconc
 		reconciler.updateStatusError(instance, v1.ConfigurationErrorReason, err)
 		return rResult, err
 	}
-	reconciler.updateStatus(instance, status.SetProvisioning)
 	listOps := &client.ListOptions{Namespace: instance.Namespace}
 	dcList := &oappsv1.DeploymentConfigList{}
 	err = reconciler.Service.List(context.TODO(), listOps, dcList)
@@ -130,11 +129,23 @@ func (reconciler *KieAppReconciler) Reconcile(request reconcile.Request) (reconc
 		return reconcile.Result{}, err
 	}
 	reconciler.updateStatusDeployments(instance, dcNames)
+
 	// Update CR if needed
-	if !reflect.DeepEqual(instance, cachedInstance) {
+	if !reflect.DeepEqual(instance.Status, cachedInstance.Status) {
+		reconciler.updateStatus(instance, status.SetProvisioning)
 		return reconciler.UpdateObj(instance)
 	}
+
+	if !reflect.DeepEqual(instance.Spec, cachedInstance.Spec) {
+		reconciler.updateStatus(instance, status.SetProvisioning)
+		return reconciler.UpdateObj(instance)
+	}
+
 	reconciler.updateStatus(instance, status.SetDeployed)
+	if !reflect.DeepEqual(instance.Status, cachedInstance.Status) {
+		return reconciler.UpdateObj(instance)
+	}
+
 	return reconcile.Result{}, nil
 }
 
