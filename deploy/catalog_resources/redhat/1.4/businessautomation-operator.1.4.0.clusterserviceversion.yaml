@@ -7,7 +7,7 @@ metadata:
     categories: Integration & Delivery
     certified: "true"
     containerImage: registry.redhat.io/rhpam-7/rhpam-rhel8-operator:7.7.0
-    createdAt: "2020-01-15 14:34:03"
+    createdAt: "2020-01-30 16:57:41"
     description: Business Automation Operator for deployment and management of RHPAM/RHDM
       environments.
     repository: https://github.com/kiegroup/kie-cloud-operator
@@ -146,6 +146,24 @@ spec:
                   value: "true"
                 - name: DEBUG
                   value: "false"
+                - name: DM_KIESERVER_IMAGE_7.7.0
+                  value: registry.redhat.io/rhdm-7/rhdm-kieserver-rhel8:7.7.0
+                - name: DM_CONTROLLER_IMAGE_7.7.0
+                  value: registry.redhat.io/rhdm-7/rhdm-controller-rhel8:7.7.0
+                - name: DM_DC_IMAGE_7.7.0
+                  value: registry.redhat.io/rhdm-7/rhdm-decisioncentral-rhel8:7.7.0
+                - name: PAM_KIESERVER_IMAGE_7.7.0
+                  value: registry.redhat.io/rhpam-7/rhpam-kieserver-rhel8:7.7.0
+                - name: PAM_CONTROLLER_IMAGE_7.7.0
+                  value: registry.redhat.io/rhpam-7/rhpam-controller-rhel8:7.7.0
+                - name: PAM_BC_IMAGE_7.7.0
+                  value: registry.redhat.io/rhpam-7/rhpam-businesscentral-rhel8:7.7.0
+                - name: PAM_BC_MONITORING_IMAGE_7.7.0
+                  value: registry.redhat.io/rhpam-7/rhpam-businesscentral-monitoring-rhel8:7.7.0
+                - name: PAM_PROCESS_MIGRATION_IMAGE_7.7.0
+                  value: registry.redhat.io/rhpam-7/rhpam-process-migration-rhel8:7.7.0
+                - name: PAM_SMARTROUTER_IMAGE_7.7.0
+                  value: registry.redhat.io/rhpam-7/rhpam-smartrouter-rhel8:7.7.0
                 image: registry.redhat.io/rhpam-7/rhpam-rhel8-operator:7.7.0
                 imagePullPolicy: Always
                 name: business-automation-operator
