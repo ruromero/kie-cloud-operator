@@ -46,7 +46,7 @@ replace (
 	github.com/imdario/mergo => github.com/imdario/mergo v0.3.7
 
 	//Openshift release-4.3
-	github.com/openshift/api => github.com/openshift/api v3.9.1-0.20200205145930-e9d93e317dd1+incompatible
+	github.com/openshift/api => github.com/openshift/api v0.0.0-20200205145930-e9d93e317dd1
 	github.com/openshift/client-go => github.com/openshift/client-go v0.0.0-20191125132246-f6563a70e19a
 
 	//Operator Framework v0.14.1

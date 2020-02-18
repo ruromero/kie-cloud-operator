@@ -603,8 +603,8 @@ github.com/opencontainers/runc v0.1.1/go.mod h1:qT5XzbpPznkRYVz/mWwUaVBUv2rmF59P
 github.com/opencontainers/runc v1.0.0-rc2.0.20190611121236-6cc515888830/go.mod h1:qT5XzbpPznkRYVz/mWwUaVBUv2rmF59PVA73FjuZG0U=
 github.com/opencontainers/runtime-spec v1.0.0/go.mod h1:jwyrGlmzljRJv/Fgzds9SsS/C5hL+LL3ko9hs6T5lQ0=
 github.com/opencontainers/selinux v1.2.2/go.mod h1:+BLncwf63G4dgOzykXAxcmnFlUaOlkDdmw/CqsW6pjs=
-github.com/openshift/api v3.9.1-0.20200205145930-e9d93e317dd1+incompatible h1:WaeXyI2r1synN9fG1+zJGbm/OvFpklwadfcq5j4kQsA=
-github.com/openshift/api v3.9.1-0.20200205145930-e9d93e317dd1+incompatible/go.mod h1:dh9o4Fs58gpFXGSYfnVxGR9PnV53I8TW84pQaJDdGiY=
+github.com/openshift/api v0.0.0-20200205145930-e9d93e317dd1 h1:9+nvzkAohurf7NS8mXalTntCldBkv5jMo0sLzDE2Op0=
+github.com/openshift/api v0.0.0-20200205145930-e9d93e317dd1/go.mod h1:dh9o4Fs58gpFXGSYfnVxGR9PnV53I8TW84pQaJDdGiY=
 github.com/openshift/client-go v0.0.0-20191125132246-f6563a70e19a h1:Otk3CuCAEHiMUr4Er6b+csq4Ar6qilAs9h93tbea+qM=
 github.com/openshift/client-go v0.0.0-20191125132246-f6563a70e19a/go.mod h1:6rzn+JTr7+WYS2E1TExP4gByoABxMznR6y2SnUIkmxk=
 github.com/openshift/origin v0.0.0-20160503220234-8f127d736703/go.mod h1:0Rox5r9C8aQn6j1oAOQ0c1uC86mYbUFObzjBRvUKHII=
@@ -786,15 +786,10 @@ github.com/yvasiyarov/go-metrics v0.0.0-20150112132944-c25f46c4b940/go.mod h1:aX
 github.com/yvasiyarov/gorelic v0.0.6/go.mod h1:NUSPSUX/bi6SeDMUh6brw0nXpxHnc96TguQh0+r/ssA=
 github.com/yvasiyarov/newrelic_platform_go v0.0.0-20140908184405-b21fdbd4370f/go.mod h1:GlGEuHIJweS1mbCqG+7vt2nvWLzLLnRHbXz5JKd/Qbg=
 github.com/ziutek/mymysql v1.5.4/go.mod h1:LMSpPZ6DbqWFxNCHW77HeMg9I646SAhApZ/wKdgO/C0=
-gitlab.com/cznic/cc v1.0.0 h1:FPT+/6Jiz/FSw4W0mREP9AcdfbjMQeAvglYesa78HHw=
 gitlab.com/cznic/cc v1.0.0/go.mod h1:tUEIb/c2v7CllN7+Ol19PkFOtZimgI1r0OvFKXObwtY=
-gitlab.com/cznic/golex v1.0.0 h1:tza7KXtzaW5t4YCSrZ5bj3URUOEh+v7ImbVQtr02FJ4=
 gitlab.com/cznic/golex v1.0.0/go.mod h1:vkWdDgqbbThjRHoOLU7yNPgMxaubAkwnvF/4zeG8cvU=
-gitlab.com/cznic/mathutil v1.0.0 h1:rDZk4wCXtClOBBvSxAlsaahL1WEG5S4oQ9lFjNJCRls=
 gitlab.com/cznic/mathutil v1.0.0/go.mod h1:dRLO7zuWTNDiZA15Lq33K5tMXs3bQBVUzCAxCAaYv30=
-gitlab.com/cznic/strutil v1.0.0 h1:qxNq0RqcyAFV7FvMHRsLJgkdef6WAlKgyr/XdA6MLcQ=
 gitlab.com/cznic/strutil v1.0.0/go.mod h1:IHAcLNYGvR7cmbJeXstXqCmL1fjw920aEXvPiK61GQg=
-gitlab.com/cznic/xc v1.0.0 h1:aji9vymGGxZ+Tx8kN8Ja4qEwuARY+tWxQjth8B9Z6AE=
 gitlab.com/cznic/xc v1.0.0/go.mod h1:VnFxZ4WQJgQ/sNODrRc38A7mwC6XsuL0JCCAVxSSASw=
 gitlab.com/nyarla/go-crypt v0.0.0-20160106005555-d9a5dc2b789b/go.mod h1:T3BPAOm2cqquPa0MKWeNkmOM5RQsRhkrwMWonFMN7fE=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
