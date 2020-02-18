@@ -82,8 +82,9 @@ type csvDeployments struct {
 	Spec appsv1.DeploymentSpec `json:"spec,omitempty"`
 }
 type csvStrategySpec struct {
-	Permissions []csvPermissions `json:"permissions"`
-	Deployments []csvDeployments `json:"deployments"`
+	Permissions        []csvPermissions `json:"permissions"`
+	ClusterPermissions []csvPermissions `json:"clusterPermissions"`
+	Deployments        []csvDeployments `json:"deployments"`
 }
 type channel struct {
 	Name       string `json:"name"`
@@ -113,6 +114,8 @@ func main() {
 		templateStrategySpec.Deployments = append(templateStrategySpec.Deployments, []csvDeployments{{Name: csv.OperatorName, Spec: deployment.Spec}}...)
 		role := components.GetRole(csv.OperatorName)
 		templateStrategySpec.Permissions = append(templateStrategySpec.Permissions, []csvPermissions{{ServiceAccountName: deployment.Spec.Template.Spec.ServiceAccountName, Rules: role.Rules}}...)
+		clusterRole := components.GetClusterRole(csv.OperatorName)
+		templateStrategySpec.ClusterPermissions = append(templateStrategySpec.ClusterPermissions, []csvPermissions{{ServiceAccountName: deployment.Spec.Template.Spec.ServiceAccountName, Rules: clusterRole.Rules}}...)
 		// Re-serialize deployments and permissions into csv strategy.
 		updatedStrat, err := json.Marshal(templateStrategySpec)
 		if err != nil {
@@ -187,7 +190,7 @@ func main() {
 				Resources: []csvv1.APIResourceReference{
 					{
 						Kind:    "DeploymentConfig",
-						Version: oappsv1.SchemeGroupVersion.String(),
+						Version: oappsv1.GroupVersion.String(),
 					},
 					{
 						Kind:    "StatefulSet",
@@ -203,15 +206,15 @@ func main() {
 					},
 					{
 						Kind:    "Route",
-						Version: routev1.SchemeGroupVersion.String(),
+						Version: routev1.GroupVersion.String(),
 					},
 					{
 						Kind:    "BuildConfig",
-						Version: buildv1.SchemeGroupVersion.String(),
+						Version: buildv1.GroupVersion.String(),
 					},
 					{
 						Kind:    "ImageStream",
-						Version: oimagev1.SchemeGroupVersion.String(),
+						Version: oimagev1.GroupVersion.String(),
 					},
 					{
 						Kind:    "Secret",
@@ -303,7 +306,7 @@ func main() {
 		// create image-references file for automated ART digest find/replace
 		imageRef := constants.ImageRef{
 			TypeMeta: metav1.TypeMeta{
-				APIVersion: oimagev1.SchemeGroupVersion.String(),
+				APIVersion: oimagev1.GroupVersion.String(),
 				Kind:       "ImageStream",
 			},
 			Spec: constants.ImageRefSpec{

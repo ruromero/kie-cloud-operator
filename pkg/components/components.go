@@ -1,6 +1,7 @@
 package components
 
 import (
+	consolev1 "github.com/openshift/api/console/v1"
 	"sort"
 	"strings"
 
@@ -169,11 +170,11 @@ func GetRole(operatorName string) *rbacv1.Role {
 				APIGroups: []string{
 					"",
 					appsv1.SchemeGroupVersion.Group,
-					oappsv1.SchemeGroupVersion.Group,
+					oappsv1.GroupVersion.Group,
 					rbacv1.SchemeGroupVersion.Group,
-					routev1.SchemeGroupVersion.Group,
-					buildv1.SchemeGroupVersion.Group,
-					oimagev1.SchemeGroupVersion.Group,
+					routev1.GroupVersion.Group,
+					buildv1.GroupVersion.Group,
+					oimagev1.GroupVersion.Group,
 					api.SchemeGroupVersion.Group,
 				},
 				Resources: []string{"*"},
@@ -312,6 +313,30 @@ func GetRole(operatorName string) *rbacv1.Role {
 	return role
 }
 
+func GetClusterRole(operatorName string) *rbacv1.ClusterRole {
+	return &rbacv1.ClusterRole{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: rbacv1.SchemeGroupVersion.String(),
+			Kind:       "ClusterRole",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: operatorName,
+		},
+		Rules: []rbacv1.PolicyRule{
+			{
+				APIGroups: []string{consolev1.GroupVersion.Group},
+				Resources: []string{"consolelinks"},
+				Verbs: []string{
+					"get",
+					"create",
+					"update",
+					"delete",
+				},
+			},
+		},
+	}
+}
+
 func GetCrd() *extv1beta1.CustomResourceDefinition {
 	plural := "kieapps"
 	crd := &extv1beta1.CustomResourceDefinition{
@@ -323,9 +348,8 @@ func GetCrd() *extv1beta1.CustomResourceDefinition {
 			Name: plural + "." + api.SchemeGroupVersion.Group,
 		},
 		Spec: extv1beta1.CustomResourceDefinitionSpec{
-			Scope:   "Namespaced",
-			Group:   api.SchemeGroupVersion.Group,
-			Version: api.SchemeGroupVersion.Version,
+			Scope: "Namespaced",
+			Group: api.SchemeGroupVersion.Group,
 			Versions: []extv1beta1.CustomResourceDefinitionVersion{
 				{
 					Name:    api.SchemeGroupVersion.Version,
