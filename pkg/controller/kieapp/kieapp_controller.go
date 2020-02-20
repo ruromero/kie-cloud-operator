@@ -13,6 +13,7 @@ import (
 	"github.com/RHsyseng/operator-utils/pkg/resource/compare"
 	"github.com/RHsyseng/operator-utils/pkg/resource/read"
 	"github.com/RHsyseng/operator-utils/pkg/resource/write"
+	"github.com/RHsyseng/operator-utils/pkg/utils/kubernetes"
 	api "github.com/kiegroup/kie-cloud-operator/pkg/apis/app/v2"
 	"github.com/kiegroup/kie-cloud-operator/pkg/controller/kieapp/constants"
 	"github.com/kiegroup/kie-cloud-operator/pkg/controller/kieapp/defaults"
@@ -40,7 +41,8 @@ var log = logs.GetLogger("kieapp.controller")
 
 // Reconciler reconciles a KieApp object
 type Reconciler struct {
-	Service api.PlatformService
+	FinalizerManager kubernetes.FinalizerManager
+	Service          api.PlatformService
 }
 
 // Reconcile reads that state of the cluster for a KieApp object and makes changes based on the state read
@@ -79,8 +81,12 @@ func (reconciler *Reconciler) Reconcile(request reconcile.Request) (reconcile.Re
 		return reconcile.Result{}, err
 	}
 
-	if instance.DeletionTimestamp != nil {
-		return reconcile.Result{}, reconciler.preDelete(instance)
+	// If the CR is being deleted, call all the registered finalizers
+	if reconciler.FinalizerManager.IsFinalizing(instance) {
+		err = reconciler.FinalizerManager.Finalize(instance)
+		if err != nil {
+			return reconcile.Result{}, err
+		}
 	}
 
 	//Obtain in-memory representation of basic environment being requested:
@@ -309,7 +315,7 @@ func getRequestedRoutes(env api.Environment, instance *api.KieApp) []resource.Ku
 	for i := range objects {
 		for j := range objects[i].Routes {
 			route := &objects[i].Routes[j]
-			route.SetGroupVersionKind(routev1.SchemeGroupVersion.WithKind("Route"))
+			route.SetGroupVersionKind(routev1.GroupVersion.WithKind("Route"))
 			route.SetNamespace(instance.GetNamespace())
 			requestedRoutes = append(requestedRoutes, route)
 		}
@@ -581,7 +587,6 @@ func (reconciler *Reconciler) reconcileConsoleLink(cr *api.KieApp, expected *con
 			err = reconciler.Service.Delete(context.TODO(), current)
 			if err == nil {
 				cr.Status.ConsoleLink = ""
-
 			}
 		}
 	} else {
@@ -590,10 +595,24 @@ func (reconciler *Reconciler) reconcileConsoleLink(cr *api.KieApp, expected *con
 			err = reconciler.Service.Create(context.TODO(), expected)
 			if err == nil {
 				cr.Status.ConsoleLink = expected.Name
-				if cr.DeletionTimestamp == nil {
-					addFinalizer(cr, constants.ConsoleLinkFinalizer)
+				onFinalize := func() error {
+					if cr.Status.ConsoleLink != "" {
+						link := &consolev1.ConsoleLink{}
+						if cr.Status.ConsoleLink != "" {
+							err = reconciler.Service.Get(context.TODO(), types.NamespacedName{Name: cr.Status.ConsoleLink}, link)
+							if err == nil {
+								err = reconciler.Service.Delete(context.TODO(), link)
+							} else if errors.IsNotFound(err) {
+								err = nil
+							}
+						}
+					}
+					return err
 				}
-				_, err = reconciler.UpdateObj(cr)
+				err = reconciler.FinalizerManager.RegisterFinalizer(cr, constants.ConsoleLinkFinalizer, onFinalize)
+				if err != nil {
+					log.Error("Unable to register finalizer for ConsoleLink. ", err)
+				}
 			}
 		} else if current.Spec.Href != expected.Spec.Href {
 			log.Debug("Update consoleLink with: ", expected.Spec.Href)
@@ -604,28 +623,6 @@ func (reconciler *Reconciler) reconcileConsoleLink(cr *api.KieApp, expected *con
 	if err != nil {
 		log.Warn("Unable to reconcile ConsoleLink. ", err)
 	}
-}
-
-func (reconciler *Reconciler) preDelete(cr *api.KieApp) (err error) {
-	if len(cr.GetFinalizers()) == 0 {
-		return err
-	}
-	if cr.Status.ConsoleLink != "" {
-		link := &consolev1.ConsoleLink{}
-		if cr.Status.ConsoleLink != "" {
-			err = reconciler.Service.Get(context.TODO(), types.NamespacedName{Name: cr.Status.ConsoleLink}, link)
-			if err == nil {
-				err = reconciler.Service.Delete(context.TODO(), link)
-			} else if errors.IsNotFound(err) {
-				err = nil
-			}
-		}
-		if err == nil {
-			deleteFinalizer(cr, constants.ConsoleLinkFinalizer)
-			_, err = reconciler.UpdateObj(cr)
-		}
-	}
-	return err
 }
 
 func (reconciler *Reconciler) getKubernetesResources(cr *api.KieApp, env api.Environment) []resource.KubernetesResource {
@@ -699,7 +696,7 @@ func (reconciler *Reconciler) getCustomObjectResources(object api.CustomObject, 
 		allObjects = append(allObjects, &object.RoleBindings[index])
 	}
 	for index := range object.DeploymentConfigs {
-		object.DeploymentConfigs[index].SetGroupVersionKind(oappsv1.SchemeGroupVersion.WithKind("DeploymentConfig"))
+		object.DeploymentConfigs[index].SetGroupVersionKind(oappsv1.GroupVersion.WithKind("DeploymentConfig"))
 		if len(object.BuildConfigs) == 0 {
 			for ti, trigger := range object.DeploymentConfigs[index].Spec.Triggers {
 				if trigger.Type == oappsv1.DeploymentTriggerOnImageChange {
@@ -722,15 +719,15 @@ func (reconciler *Reconciler) getCustomObjectResources(object api.CustomObject, 
 		allObjects = append(allObjects, &object.StatefulSets[index])
 	}
 	for index := range object.Routes {
-		object.Routes[index].SetGroupVersionKind(routev1.SchemeGroupVersion.WithKind("Route"))
+		object.Routes[index].SetGroupVersionKind(routev1.GroupVersion.WithKind("Route"))
 		allObjects = append(allObjects, &object.Routes[index])
 	}
 	for index := range object.ImageStreams {
-		object.ImageStreams[index].SetGroupVersionKind(oimagev1.SchemeGroupVersion.WithKind("ImageStream"))
+		object.ImageStreams[index].SetGroupVersionKind(oimagev1.GroupVersion.WithKind("ImageStream"))
 		allObjects = append(allObjects, &object.ImageStreams[index])
 	}
 	for index := range object.BuildConfigs {
-		object.BuildConfigs[index].SetGroupVersionKind(buildv1.SchemeGroupVersion.WithKind("BuildConfig"))
+		object.BuildConfigs[index].SetGroupVersionKind(buildv1.GroupVersion.WithKind("BuildConfig"))
 		if object.BuildConfigs[index].Spec.Strategy.Type == buildv1.SourceBuildStrategyType {
 			object.BuildConfigs[index].Spec.Strategy.SourceStrategy.From.Namespace, _ = reconciler.ensureImageStream(
 				object.BuildConfigs[index].Spec.Strategy.SourceStrategy.From.Name,
@@ -992,27 +989,4 @@ func (reconciler *Reconciler) getCSV(operator *appsv1.Deployment) *operatorsv1al
 		}
 	}
 	return csv
-}
-
-func addFinalizer(cr *api.KieApp, finalizer string) {
-	_, found := findFinalizer(cr, finalizer)
-	if !found {
-		cr.SetFinalizers(append(cr.GetFinalizers(), finalizer))
-	}
-}
-
-func deleteFinalizer(cr *api.KieApp, finalizer string) {
-	pos, found := findFinalizer(cr, finalizer)
-	if found {
-		cr.SetFinalizers(append(cr.GetFinalizers()[0:pos], cr.GetFinalizers()[pos+1:]...))
-	}
-}
-
-func findFinalizer(cr *api.KieApp, finalizer string) (int, bool) {
-	for i, v := range cr.GetFinalizers() {
-		if v == finalizer {
-			return i, true
-		}
-	}
-	return -1, false
 }
