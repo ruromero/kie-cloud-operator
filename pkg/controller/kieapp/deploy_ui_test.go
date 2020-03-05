@@ -61,7 +61,7 @@ func TestUpdateLink(t *testing.T) {
 		}
 		return service.Client.Create(ctx, obj, opts...)
 	}
-	deployConsole(&Reconciler{Service: service, FinalizerManager: kubernetes.FinalizerManager{Client: service.Client}}, operator)
+	deployConsole(&Reconciler{Service: service, FinalizerManager: kubernetes.NewFinalizerManager(service)}, operator)
 
 	updatedCSV := &operators.ClusterServiceVersion{}
 	err = service.Get(context.TODO(), types.NamespacedName{Name: csv.Name, Namespace: csv.Namespace}, updatedCSV)
@@ -112,7 +112,7 @@ func TestUpdateExistingLink(t *testing.T) {
 		}
 		return service.Client.Create(ctx, obj, opts...)
 	}
-	deployConsole(&Reconciler{Service: service, FinalizerManager: kubernetes.FinalizerManager{Client: service.Client}}, operator)
+	deployConsole(&Reconciler{Service: service, FinalizerManager: kubernetes.NewFinalizerManager(service)}, operator)
 
 	updatedCSV := &operators.ClusterServiceVersion{}
 	err = service.Get(context.TODO(), types.NamespacedName{Name: csv.Name, Namespace: csv.Namespace}, updatedCSV)

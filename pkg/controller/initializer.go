@@ -13,7 +13,9 @@ func init() {
 	// AddToManagerFuncs is a list of functions to create controllers and add them to a manager.
 	addManager := func(mgr manager.Manager) error {
 		k8sService := GetInstance(mgr)
-		reconciler := kieapp.Reconciler{Service: &k8sService, FinalizerManager: kubernetes.NewFinalizerManager(k8sService.client)}
+		finalizerMgr := kubernetes.NewFinalizerManager(&k8sService)
+		finalizerMgr.RegisterFinalizer(&kieapp.ConsoleLinkFinalizer{})
+		reconciler := kieapp.Reconciler{Service: &k8sService, FinalizerManager: kubernetes.NewFinalizerManager(&k8sService)}
 		return kieapp.Add(mgr, &reconciler)
 	}
 	AddToManagerFuncs = []func(manager.Manager) error{addManager}

@@ -82,11 +82,9 @@ func (reconciler *Reconciler) Reconcile(request reconcile.Request) (reconcile.Re
 	}
 
 	// If the CR is being deleted, call all the registered finalizers
-	if reconciler.FinalizerManager.IsFinalizing(instance) {
-		err = reconciler.FinalizerManager.Finalize(instance)
-		if err != nil {
-			return reconcile.Result{}, err
-		}
+	err = reconciler.FinalizerManager.FinalizeOnDelete(instance)
+	if err != nil {
+		return reconcile.Result{}, err
 	}
 
 	//Obtain in-memory representation of basic environment being requested:
@@ -595,21 +593,7 @@ func (reconciler *Reconciler) reconcileConsoleLink(cr *api.KieApp, expected *con
 			err = reconciler.Service.Create(context.TODO(), expected)
 			if err == nil {
 				cr.Status.ConsoleLink = expected.Name
-				onFinalize := func() error {
-					if cr.Status.ConsoleLink != "" {
-						link := &consolev1.ConsoleLink{}
-						if cr.Status.ConsoleLink != "" {
-							err = reconciler.Service.Get(context.TODO(), types.NamespacedName{Name: cr.Status.ConsoleLink}, link)
-							if err == nil {
-								err = reconciler.Service.Delete(context.TODO(), link)
-							} else if errors.IsNotFound(err) {
-								err = nil
-							}
-						}
-					}
-					return err
-				}
-				err = reconciler.FinalizerManager.RegisterFinalizer(cr, constants.ConsoleLinkFinalizer, onFinalize)
+				err = reconciler.FinalizerManager.AddFinalizer(cr, constants.ConsoleLinkFinalizer)
 				if err != nil {
 					log.Error("Unable to register finalizer for ConsoleLink. ", err)
 				}
@@ -989,4 +973,29 @@ func (reconciler *Reconciler) getCSV(operator *appsv1.Deployment) *operatorsv1al
 		}
 	}
 	return csv
+}
+
+type ConsoleLinkFinalizer struct{}
+
+func (c *ConsoleLinkFinalizer) GetName() string {
+	return constants.ConsoleLinkFinalizer
+}
+
+func (c *ConsoleLinkFinalizer) OnFinalize(owner resource.KubernetesResource, service kubernetes.PlatformService) error {
+	if reflect.TypeOf(owner) != reflect.TypeOf(api.KieApp{}) {
+		return fmt.Errorf("owner must be a KieApp instance")
+	}
+	kieapp := owner.(*api.KieApp)
+	if kieapp.Status.ConsoleLink != "" {
+		link := &consolev1.ConsoleLink{}
+		if kieapp.Status.ConsoleLink != "" {
+			err := service.Get(context.TODO(), types.NamespacedName{Name: kieapp.Status.ConsoleLink}, link)
+			if err == nil {
+				err = service.Delete(context.TODO(), link)
+			} else if errors.IsNotFound(err) {
+				err = nil
+			}
+		}
+	}
+	return nil
 }
