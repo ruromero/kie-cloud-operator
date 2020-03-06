@@ -3,7 +3,6 @@ package kieapp
 import (
 	"context"
 	"fmt"
-	"github.com/RHsyseng/operator-utils/pkg/utils/kubernetes"
 	"strings"
 	"testing"
 
@@ -61,7 +60,7 @@ func TestUpdateLink(t *testing.T) {
 		}
 		return service.Client.Create(ctx, obj, opts...)
 	}
-	deployConsole(&Reconciler{Service: service, FinalizerManager: kubernetes.NewFinalizerManager(service)}, operator)
+	deployConsole(&Reconciler{Service: service}, operator)
 
 	updatedCSV := &operators.ClusterServiceVersion{}
 	err = service.Get(context.TODO(), types.NamespacedName{Name: csv.Name, Namespace: csv.Namespace}, updatedCSV)
@@ -112,7 +111,7 @@ func TestUpdateExistingLink(t *testing.T) {
 		}
 		return service.Client.Create(ctx, obj, opts...)
 	}
-	deployConsole(&Reconciler{Service: service, FinalizerManager: kubernetes.NewFinalizerManager(service)}, operator)
+	deployConsole(&Reconciler{Service: service}, operator)
 
 	updatedCSV := &operators.ClusterServiceVersion{}
 	err = service.Get(context.TODO(), types.NamespacedName{Name: csv.Name, Namespace: csv.Namespace}, updatedCSV)

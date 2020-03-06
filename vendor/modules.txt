@@ -20,13 +20,14 @@ github.com/PuerkitoBio/urlesc
 # github.com/RHsyseng/console-cr-form v0.0.0-20200129200812-dc119cb0bd4d => github.com/RHsyseng/console-cr-form v0.0.0-20200129200812-dc119cb0bd4d
 github.com/RHsyseng/console-cr-form/pkg/web
 github.com/RHsyseng/console-cr-form/pkg/web/packrd
-# github.com/RHsyseng/operator-utils v0.0.0-20200204194854-c5b0d8533458 => github.com/ruromero/operator-utils v0.0.0-20200220120515-aa8f10b034f9
+# github.com/RHsyseng/operator-utils v0.0.0-20200204194854-c5b0d8533458 => github.com/ruromero/operator-utils v0.0.0-20200306081719-fb6be1e06354
 github.com/RHsyseng/operator-utils/pkg/olm
 github.com/RHsyseng/operator-utils/pkg/utils/kubernetes
 github.com/RHsyseng/operator-utils/pkg/resource
 github.com/RHsyseng/operator-utils/pkg/resource/compare
 github.com/RHsyseng/operator-utils/pkg/resource/read
 github.com/RHsyseng/operator-utils/pkg/resource/write
+github.com/RHsyseng/operator-utils/pkg/logs
 github.com/RHsyseng/operator-utils/pkg/resource/write/hooks
 github.com/RHsyseng/operator-utils/pkg/validation
 # github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
@@ -102,16 +103,16 @@ github.com/gobuffalo/packd/internal/takeon/github.com/markbates/errx
 # github.com/gobuffalo/packr/v2 v2.7.1 => github.com/gobuffalo/packr/v2 v2.7.1
 github.com/gobuffalo/packr/v2/jam
 github.com/gobuffalo/packr/v2
+github.com/gobuffalo/packr/v2/file/resolver
 github.com/gobuffalo/packr/v2/jam/parser
 github.com/gobuffalo/packr/v2/jam/store
 github.com/gobuffalo/packr/v2/plog
 github.com/gobuffalo/packr/v2/file
-github.com/gobuffalo/packr/v2/file/resolver
 github.com/gobuffalo/packr/v2/internal/takeon/github.com/markbates/oncer
 github.com/gobuffalo/packr/v2/internal/takeon/github.com/markbates/safe
+github.com/gobuffalo/packr/v2/file/resolver/encoding/hex
 github.com/gobuffalo/packr/v2/internal/takeon/github.com/karrick/godirwalk
 github.com/gobuffalo/packr/v2/internal/takeon/github.com/markbates/errx
-github.com/gobuffalo/packr/v2/file/resolver/encoding/hex
 # github.com/gogo/protobuf v1.3.1
 github.com/gogo/protobuf/proto
 github.com/gogo/protobuf/sortkeys
@@ -536,6 +537,7 @@ sigs.k8s.io/controller-runtime/pkg/scheme
 sigs.k8s.io/controller-runtime/pkg/client
 sigs.k8s.io/controller-runtime/pkg/cache
 sigs.k8s.io/controller-runtime/pkg/controller
+sigs.k8s.io/controller-runtime/pkg/controller/controllerutil
 sigs.k8s.io/controller-runtime/pkg/handler
 sigs.k8s.io/controller-runtime/pkg/reconcile
 sigs.k8s.io/controller-runtime/pkg/source
@@ -552,7 +554,6 @@ sigs.k8s.io/controller-runtime/pkg/recorder
 sigs.k8s.io/controller-runtime/pkg/runtime/inject
 sigs.k8s.io/controller-runtime/pkg/webhook
 sigs.k8s.io/controller-runtime/pkg/runtime/log
-sigs.k8s.io/controller-runtime/pkg/controller/controllerutil
 sigs.k8s.io/controller-runtime/pkg/cache/internal
 sigs.k8s.io/controller-runtime/pkg/internal/controller
 sigs.k8s.io/controller-runtime/pkg/predicate

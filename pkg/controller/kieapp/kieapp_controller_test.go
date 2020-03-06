@@ -3,6 +3,7 @@ package kieapp
 import (
 	"context"
 	"fmt"
+	"github.com/RHsyseng/operator-utils/pkg/resource"
 	"github.com/RHsyseng/operator-utils/pkg/utils/kubernetes"
 	consolev1 "github.com/openshift/api/console/v1"
 	routev1 "github.com/openshift/api/route/v1"
@@ -54,8 +55,7 @@ func TestGenerateSecret(t *testing.T) {
 	env, err = defaults.GetEnvironment(cr, mockService)
 	assert.Nil(t, err, "Error getting a new environment")
 	reconciler := Reconciler{
-		Service:          mockService,
-		FinalizerManager: kubernetes.NewFinalizerManager(mockService),
+		Service: mockService,
 	}
 	env = reconciler.setEnvironmentProperties(cr, env, getRequestedRoutes(env, cr))
 	assert.Len(t, env.Console.Secrets, 1, "One secret should be generated for the trial workbench")
@@ -150,7 +150,7 @@ func TestConsoleHost(t *testing.T) {
 	}
 	env, err := defaults.GetEnvironment(cr, mockService)
 	assert.Nil(t, err, "Error creating a new environment")
-	reconciler := &Reconciler{Service: mockService, FinalizerManager: kubernetes.NewFinalizerManager(mockService)}
+	reconciler := &Reconciler{Service: mockService}
 	reconciler.setEnvironmentProperties(cr, env, getRequestedRoutes(env, cr))
 	assert.Equal(t, fmt.Sprintf("http://%s", cr.Spec.CommonConfig.ApplicationName), cr.Status.ConsoleHost, "spec.commonConfig.consoleHost should be URL from the resulting workbench route host")
 }
@@ -241,7 +241,7 @@ func TestVerifyExternalReferencesRoleMapper(t *testing.T) {
 		return scheme
 	}
 
-	reconciler := &Reconciler{Service: mockService, FinalizerManager: kubernetes.NewFinalizerManager(mockService)}
+	reconciler := &Reconciler{Service: mockService}
 	for _, test := range tests {
 		mockService.GetFunc = func(ctx context.Context, key clientv1.ObjectKey, obj runtime.Object) error {
 			if test.errMsg == "" {
@@ -349,7 +349,7 @@ func TestVerifyExternalReferencesGitHooks(t *testing.T) {
 	mockService.GetSchemeFunc = func() *runtime.Scheme {
 		return scheme
 	}
-	reconciler := &Reconciler{Service: mockService, FinalizerManager: kubernetes.NewFinalizerManager(mockService)}
+	reconciler := &Reconciler{Service: mockService}
 
 	for _, test := range tests {
 		mockService.GetFunc = func(ctx context.Context, key clientv1.ObjectKey, obj runtime.Object) error {
@@ -386,8 +386,7 @@ func TestCreateRhpamImageStreams(t *testing.T) {
 	_, err := defaults.GetEnvironment(cr, mockSvc)
 	assert.Nil(t, err)
 	reconciler := Reconciler{
-		Service:          mockSvc,
-		FinalizerManager: kubernetes.NewFinalizerManager(mockSvc),
+		Service: mockSvc,
 	}
 
 	err = reconciler.createLocalImageTag(fmt.Sprintf("rhpam%s-businesscentral-openshift:1.0", cr.Spec.Version), cr)
@@ -414,8 +413,7 @@ func TestCreateRhdmImageStreams(t *testing.T) {
 	_, err := defaults.GetEnvironment(cr, mockSvc)
 	assert.Nil(t, err)
 	reconciler := Reconciler{
-		Service:          mockSvc,
-		FinalizerManager: kubernetes.NewFinalizerManager(mockSvc),
+		Service: mockSvc,
 	}
 
 	err = reconciler.createLocalImageTag(fmt.Sprintf("rhdm%s-decisioncentral-openshift:1.0", cr.Spec.Version), cr)
@@ -442,8 +440,7 @@ func TestCreateTagVersionImageStreams(t *testing.T) {
 	_, err := defaults.GetEnvironment(cr, mockSvc)
 	assert.Nil(t, err)
 	reconciler := Reconciler{
-		Service:          mockSvc,
-		FinalizerManager: kubernetes.NewFinalizerManager(mockSvc),
+		Service: mockSvc,
 	}
 
 	err = reconciler.createLocalImageTag(fmt.Sprintf("%s:%s", constants.VersionConstants[cr.Spec.Version].DatagridImage, constants.VersionConstants[cr.Spec.Version].DatagridImageTag), cr)
@@ -470,8 +467,7 @@ func TestCreateImageStreamsLatest(t *testing.T) {
 	_, err := defaults.GetEnvironment(cr, mockSvc)
 	assert.Nil(t, err)
 	reconciler := Reconciler{
-		Service:          mockSvc,
-		FinalizerManager: kubernetes.NewFinalizerManager(mockSvc),
+		Service: mockSvc,
 	}
 
 	err = reconciler.createLocalImageTag(fmt.Sprintf("%s", constants.VersionConstants[cr.Spec.Version].DatagridImage), cr)
@@ -493,7 +489,7 @@ func TestStatusDeploymentsProgression(t *testing.T) {
 	service := test.MockService()
 	err := service.Create(context.TODO(), cr)
 	assert.Nil(t, err)
-	reconciler := Reconciler{Service: service, FinalizerManager: kubernetes.NewFinalizerManager(service)}
+	reconciler := Reconciler{Service: service}
 	result, err := reconciler.Reconcile(reconcile.Request{NamespacedName: crNamespacedName})
 	assert.Nil(t, err)
 	assert.Equal(t, reconcile.Result{Requeue: true, RequeueAfter: time.Duration(500) * time.Millisecond}, result, "Routes should be created, requeued for hostname detection before other resources are created")
@@ -562,24 +558,34 @@ func TestConsoleLinkCreation(t *testing.T) {
 		Environment: api.RhpamAuthoring,
 	}
 	service := test.MockService()
+	counter := 0
+	service.CreateFunc = func(ctx context.Context, obj runtime.Object, opts ...clientv1.CreateOption) error {
+		k8sresource := obj.(resource.KubernetesResource)
+		if k8sresource.GetGenerateName() != "" {
+			k8sresource.SetName(fmt.Sprintf("%s%d", k8sresource.GetGenerateName(), counter))
+			counter++
+		}
+		return service.Client.Create(ctx, obj, opts...)
+	}
 	err := service.Create(context.TODO(), cr)
 	assert.Nil(t, err)
-	reconciler := Reconciler{Service: service, FinalizerManager: kubernetes.NewFinalizerManager(service)}
-	reconciler.FinalizerManager.RegisterFinalizer(&ConsoleLinkFinalizer{})
-	result, err := reconciler.Reconcile(reconcile.Request{NamespacedName: crNamespacedName})
+	reconciler := Reconciler{Service: service}
+	extReconciler := kubernetes.NewExtendedReconciler(service, &reconciler, &api.KieApp{})
+	extReconciler.RegisterFinalizer(&ConsoleLinkFinalizer{})
+	result, err := extReconciler.Reconcile(reconcile.Request{NamespacedName: crNamespacedName})
 	assert.Nil(t, err)
 	assert.Equal(t, reconcile.Result{Requeue: true, RequeueAfter: time.Duration(500) * time.Millisecond}, result, "Routes should be created, requeued for hostname detection before other resources are created")
 
 	// Simulate server setting the host
 	bcRoute := &routev1.Route{}
-	reconciler.Service.Get(context.TODO(), getNamespacedName(cr.Namespace, "cr-rhpamcentr"), bcRoute)
+	extReconciler.Service.Get(context.TODO(), getNamespacedName(cr.Namespace, "cr-rhpamcentr"), bcRoute)
 	bcRoute.Spec.Host = "example"
-	reconciler.Service.Update(context.TODO(), bcRoute)
+	extReconciler.Service.Update(context.TODO(), bcRoute)
 
-	result, err = reconciler.Reconcile(reconcile.Request{NamespacedName: crNamespacedName})
+	result, err = extReconciler.Reconcile(reconcile.Request{NamespacedName: crNamespacedName})
 	assert.Equal(t, reconcile.Result{Requeue: true}, result, "All other resources created, custom Resource status set to provisioning, and requeued")
 
-	result, err = reconciler.Reconcile(reconcile.Request{NamespacedName: crNamespacedName})
+	result, err = extReconciler.Reconcile(reconcile.Request{NamespacedName: crNamespacedName})
 	assert.Equal(t, reconcile.Result{Requeue: true}, result, "Deployment status set, and requeued")
 
 	cr = reloadCR(t, service, crNamespacedName)
@@ -600,7 +606,7 @@ func TestConsoleLinkCreation(t *testing.T) {
 		return err
 	}
 
-	result, err = reconciler.Reconcile(reconcile.Request{NamespacedName: crNamespacedName})
+	result, err = extReconciler.Reconcile(reconcile.Request{NamespacedName: crNamespacedName})
 	assert.Nil(t, err)
 	assert.Equal(t, reconcile.Result{Requeue: true}, result, "Deployment should be created but requeued for status updates")
 
@@ -622,7 +628,7 @@ func TestConsoleLinkCreation(t *testing.T) {
 		return err
 	}
 
-	result, err = reconciler.Reconcile(reconcile.Request{NamespacedName: crNamespacedName})
+	result, err = extReconciler.Reconcile(reconcile.Request{NamespacedName: crNamespacedName})
 	assert.Nil(t, err)
 	assert.Equal(t, reconcile.Result{Requeue: true}, result, "Deployment should be created but requeued for status updates")
 
@@ -635,12 +641,25 @@ func TestConsoleLinkCreation(t *testing.T) {
 	assert.Len(t, cr.GetFinalizers(), 1)
 	assert.Equal(t, constants.ConsoleLinkFinalizer, cr.GetFinalizers()[0])
 	consoleLink := &consolev1.ConsoleLink{}
-	reconciler.Service.Get(context.TODO(), getNamespacedName("", ""), consoleLink)
+	extReconciler.Service.Get(context.TODO(), getNamespacedName("", "testns-cr-0"), consoleLink)
 	assert.Equal(t, "Business Central", consoleLink.Spec.Text)
 	assert.Equal(t, "https://example", consoleLink.Spec.Href)
-	assert.Equal(t, "testns-cr-", consoleLink.GenerateName)
+	assert.Equal(t, "testns-cr-0", consoleLink.Name)
 	assert.Len(t, consoleLink.Spec.NamespaceDashboard.Namespaces, 1)
 	assert.Contains(t, consoleLink.Spec.NamespaceDashboard.Namespaces, "testns")
+
+	//Delete kieapp
+	deletionTimestamp := metav1.Now()
+	cr.SetDeletionTimestamp(&deletionTimestamp)
+	err = service.Update(context.TODO(), cr)
+	assert.Nil(t, err)
+
+	result, err = extReconciler.Reconcile(reconcile.Request{NamespacedName: crNamespacedName})
+	cr = reloadCR(t, service, crNamespacedName)
+	assert.Len(t, cr.GetFinalizers(), 0)
+	consoleLink = &consolev1.ConsoleLink{}
+	err = extReconciler.Service.Get(context.TODO(), getNamespacedName("", "testns-cr-0"), consoleLink)
+	assert.Error(t, err)
 }
 
 func getNamespacedName(namespace string, name string) types.NamespacedName {

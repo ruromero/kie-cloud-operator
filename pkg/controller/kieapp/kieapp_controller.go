@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"strings"
 	"time"
 
@@ -41,8 +42,7 @@ var log = logs.GetLogger("kieapp.controller")
 
 // Reconciler reconciles a KieApp object
 type Reconciler struct {
-	FinalizerManager kubernetes.FinalizerManager
-	Service          api.PlatformService
+	Service api.PlatformService
 }
 
 // Reconcile reads that state of the cluster for a KieApp object and makes changes based on the state read
@@ -78,12 +78,6 @@ func (reconciler *Reconciler) Reconcile(request reconcile.Request) (reconcile.Re
 		}
 		// Error reading the object - requeue the request.
 		reconciler.setFailedStatus(instance, api.UnknownReason, err)
-		return reconcile.Result{}, err
-	}
-
-	// If the CR is being deleted, call all the registered finalizers
-	err = reconciler.FinalizerManager.FinalizeOnDelete(instance)
-	if err != nil {
 		return reconcile.Result{}, err
 	}
 
@@ -593,10 +587,7 @@ func (reconciler *Reconciler) reconcileConsoleLink(cr *api.KieApp, expected *con
 			err = reconciler.Service.Create(context.TODO(), expected)
 			if err == nil {
 				cr.Status.ConsoleLink = expected.Name
-				err = reconciler.FinalizerManager.AddFinalizer(cr, constants.ConsoleLinkFinalizer)
-				if err != nil {
-					log.Error("Unable to register finalizer for ConsoleLink. ", err)
-				}
+				controllerutil.AddFinalizer(cr, constants.ConsoleLinkFinalizer)
 			}
 		} else if current.Spec.Href != expected.Spec.Href {
 			log.Debug("Update consoleLink with: ", expected.Spec.Href)
@@ -982,9 +973,6 @@ func (c *ConsoleLinkFinalizer) GetName() string {
 }
 
 func (c *ConsoleLinkFinalizer) OnFinalize(owner resource.KubernetesResource, service kubernetes.PlatformService) error {
-	if reflect.TypeOf(owner) != reflect.TypeOf(api.KieApp{}) {
-		return fmt.Errorf("owner must be a KieApp instance")
-	}
 	kieapp := owner.(*api.KieApp)
 	if kieapp.Status.ConsoleLink != "" {
 		link := &consolev1.ConsoleLink{}
