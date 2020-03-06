@@ -700,8 +700,8 @@ github.com/rogpeppe/go-internal v1.5.0 h1:Usqs0/lDK/NqTkvrmKSwA/3XkZAs7ZAW/eLeQ2
 github.com/rogpeppe/go-internal v1.5.0/go.mod h1:xXDCJY+GAPziupqXw64V24skbSoqbTEfhy4qGm1nDQc=
 github.com/rubenv/sql-migrate v0.0.0-20191025130928-9355dd04f4b3/go.mod h1:WS0rl9eEliYI8DPnr3TOwz4439pay+qNgzJoVya/DmY=
 github.com/rubiojr/go-vhd v0.0.0-20160810183302-0bfd3b39853c/go.mod h1:DM5xW0nvfNNm2uytzsvhI3OnX8uzaRAg8UX/CnDqbto=
-github.com/ruromero/operator-utils v0.0.0-20200306081719-fb6be1e06354 h1:/C4F219gmEzCVIcXwq+8tUbnMRwf1sSiwL1XQ/KRZEM=
-github.com/ruromero/operator-utils v0.0.0-20200306081719-fb6be1e06354/go.mod h1:p+ypkz8LBudXqjktMrlQoiUQdkaESmMJjsXTx9wPqLk=
+github.com/ruromero/operator-utils v0.0.0-20200306105445-e7f4dd17c7eb h1:vjlZdz85fZFzkdEGodY9IL7KddToXMEy4wEzIZUv+EU=
+github.com/ruromero/operator-utils v0.0.0-20200306105445-e7f4dd17c7eb/go.mod h1:p+ypkz8LBudXqjktMrlQoiUQdkaESmMJjsXTx9wPqLk=
 github.com/russross/blackfriday v0.0.0-20170610170232-067529f716f4/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=
 github.com/ryanuber/go-glob v0.0.0-20170128012129-256dc444b735/go.mod h1:807d1WSdnB0XRJzKNil9Om6lcp/3a0v4qIHxIXzX/Yc=
