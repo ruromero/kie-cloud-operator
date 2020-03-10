@@ -20,7 +20,7 @@ github.com/PuerkitoBio/urlesc
 # github.com/RHsyseng/console-cr-form v0.0.0-20200129200812-dc119cb0bd4d => github.com/RHsyseng/console-cr-form v0.0.0-20200129200812-dc119cb0bd4d
 github.com/RHsyseng/console-cr-form/pkg/web
 github.com/RHsyseng/console-cr-form/pkg/web/packrd
-# github.com/RHsyseng/operator-utils v0.0.0-20200204194854-c5b0d8533458 => github.com/ruromero/operator-utils v0.0.0-20200306105445-e7f4dd17c7eb
+# github.com/RHsyseng/operator-utils v0.0.0-20200204194854-c5b0d8533458 => github.com/RHsyseng/operator-utils v0.0.0-20200310065217-8584fd29cea3
 github.com/RHsyseng/operator-utils/pkg/olm
 github.com/RHsyseng/operator-utils/pkg/utils/kubernetes
 github.com/RHsyseng/operator-utils/pkg/resource
