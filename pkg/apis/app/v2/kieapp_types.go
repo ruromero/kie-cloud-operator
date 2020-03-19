@@ -65,11 +65,12 @@ type EnvironmentConstants struct {
 
 // AppConstants data type to store application deployment constants
 type AppConstants struct {
-	Product   string `json:"name,omitempty"`
-	Prefix    string `json:"prefix,omitempty"`
-	ImageName string `json:"imageName,omitempty"`
-	ImageVar  string `json:"imageVar,omitempty"`
-	MavenRepo string `json:"mavenRepo,omitempty"`
+	Product      string `json:"name,omitempty"`
+	Prefix       string `json:"prefix,omitempty"`
+	ImageName    string `json:"imageName,omitempty"`
+	ImageVar     string `json:"imageVar,omitempty"`
+	MavenRepo    string `json:"mavenRepo,omitempty"`
+	FriendlyName string `json:"friendlyName,omitempty"`
 }
 
 // KieAppRegistry defines the registry that should be used for rhpam images

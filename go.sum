@@ -54,8 +54,6 @@ github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 h1:d+Bc7a5rLufV
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
 github.com/RHsyseng/console-cr-form v0.0.0-20200129200812-dc119cb0bd4d h1:XmCGuoQVbY5Jhy9O0jpxTiarpmZVHxgP0pqcMMWKYpU=
 github.com/RHsyseng/console-cr-form v0.0.0-20200129200812-dc119cb0bd4d/go.mod h1:b1BUyQinnYJTvUGO4Yf+QqXy7PrBWT1CU6T85wDUobI=
-github.com/RHsyseng/operator-utils v0.0.0-20200310065217-8584fd29cea3 h1:715ETtqlMaE+UY4bCDqv1neSE0qoPxVCmt8uvxY+e84=
-github.com/RHsyseng/operator-utils v0.0.0-20200310065217-8584fd29cea3/go.mod h1:E+hCtYz+9UsXfAGnRjX2LGuaa5gSGNKHCVTmGZR79vY=
 github.com/Rican7/retry v0.1.0/go.mod h1:FgOROf8P5bebcC1DS0PdOQiqGUridaZvikzUmkFW6gg=
 github.com/Shopify/logrus-bugsnag v0.0.0-20171204204709-577dee27f20d/go.mod h1:HI8ITrYtUY+O+ZhtlqUnD8+KwNPOyugEhfP9fdUIaEQ=
 github.com/Shopify/sarama v1.19.0/go.mod h1:FVkBWblsNy7DGZRfXLU0O9RCGt5g3g3yEuWXgklEdEo=
@@ -703,6 +701,8 @@ github.com/rogpeppe/go-internal v1.5.0 h1:Usqs0/lDK/NqTkvrmKSwA/3XkZAs7ZAW/eLeQ2
 github.com/rogpeppe/go-internal v1.5.0/go.mod h1:xXDCJY+GAPziupqXw64V24skbSoqbTEfhy4qGm1nDQc=
 github.com/rubenv/sql-migrate v0.0.0-20191025130928-9355dd04f4b3/go.mod h1:WS0rl9eEliYI8DPnr3TOwz4439pay+qNgzJoVya/DmY=
 github.com/rubiojr/go-vhd v0.0.0-20160810183302-0bfd3b39853c/go.mod h1:DM5xW0nvfNNm2uytzsvhI3OnX8uzaRAg8UX/CnDqbto=
+github.com/ruromero/operator-utils v0.0.0-20200319122538-b8437606be48 h1:GCatPIoEfL3oYx+pb6E4gYigy1Hw25oVp/my64JN42s=
+github.com/ruromero/operator-utils v0.0.0-20200319122538-b8437606be48/go.mod h1:p+ypkz8LBudXqjktMrlQoiUQdkaESmMJjsXTx9wPqLk=
 github.com/russross/blackfriday v0.0.0-20170610170232-067529f716f4/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=
 github.com/ryanuber/go-glob v0.0.0-20170128012129-256dc444b735/go.mod h1:807d1WSdnB0XRJzKNil9Om6lcp/3a0v4qIHxIXzX/Yc=

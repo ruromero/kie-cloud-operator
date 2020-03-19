@@ -20,7 +20,7 @@ github.com/PuerkitoBio/urlesc
 # github.com/RHsyseng/console-cr-form v0.0.0-20200129200812-dc119cb0bd4d => github.com/RHsyseng/console-cr-form v0.0.0-20200129200812-dc119cb0bd4d
 github.com/RHsyseng/console-cr-form/pkg/web
 github.com/RHsyseng/console-cr-form/pkg/web/packrd
-# github.com/RHsyseng/operator-utils v0.0.0-20200204194854-c5b0d8533458 => github.com/RHsyseng/operator-utils v0.0.0-20200310065217-8584fd29cea3
+# github.com/RHsyseng/operator-utils v0.0.0-20200204194854-c5b0d8533458 => github.com/ruromero/operator-utils v0.0.0-20200319122538-b8437606be48
 github.com/RHsyseng/operator-utils/pkg/logs
 github.com/RHsyseng/operator-utils/pkg/olm
 github.com/RHsyseng/operator-utils/pkg/utils/kubernetes
@@ -181,6 +181,7 @@ github.com/openshift/api/apps/v1
 github.com/openshift/api/build/v1
 github.com/openshift/api/image/v1
 github.com/openshift/api/route/v1
+github.com/openshift/api/console/v1
 github.com/openshift/api/image/docker10
 github.com/openshift/api/image/dockerpre012
 # github.com/openshift/client-go v0.0.0-20200116152001-92a2713fa240 => github.com/openshift/client-go v0.0.0-20191125132246-f6563a70e19a
@@ -534,6 +535,7 @@ sigs.k8s.io/controller-runtime/pkg/manager/signals
 sigs.k8s.io/controller-runtime/pkg/scheme
 sigs.k8s.io/controller-runtime/pkg/client
 sigs.k8s.io/controller-runtime/pkg/controller
+sigs.k8s.io/controller-runtime/pkg/controller/controllerutil
 sigs.k8s.io/controller-runtime/pkg/handler
 sigs.k8s.io/controller-runtime/pkg/reconcile
 sigs.k8s.io/controller-runtime/pkg/source
@@ -551,7 +553,6 @@ sigs.k8s.io/controller-runtime/pkg/recorder
 sigs.k8s.io/controller-runtime/pkg/runtime/inject
 sigs.k8s.io/controller-runtime/pkg/webhook
 sigs.k8s.io/controller-runtime/pkg/runtime/log
-sigs.k8s.io/controller-runtime/pkg/controller/controllerutil
 sigs.k8s.io/controller-runtime/pkg/internal/controller
 sigs.k8s.io/controller-runtime/pkg/predicate
 sigs.k8s.io/controller-runtime/pkg/event
