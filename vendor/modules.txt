@@ -20,7 +20,7 @@ github.com/PuerkitoBio/urlesc
 # github.com/RHsyseng/console-cr-form v0.0.0-20200129200812-dc119cb0bd4d => github.com/RHsyseng/console-cr-form v0.0.0-20200129200812-dc119cb0bd4d
 github.com/RHsyseng/console-cr-form/pkg/web
 github.com/RHsyseng/console-cr-form/pkg/web/packrd
-# github.com/RHsyseng/operator-utils v0.0.0-20200204194854-c5b0d8533458 => github.com/ruromero/operator-utils v0.0.0-20200319122538-b8437606be48
+# github.com/RHsyseng/operator-utils v0.0.0-20200204194854-c5b0d8533458 => github.com/RHsyseng/operator-utils v0.0.0-20200324072727-841309f096a1
 github.com/RHsyseng/operator-utils/pkg/logs
 github.com/RHsyseng/operator-utils/pkg/olm
 github.com/RHsyseng/operator-utils/pkg/utils/kubernetes
@@ -35,7 +35,7 @@ github.com/alecthomas/template
 github.com/alecthomas/template/parse
 # github.com/alecthomas/units v0.0.0-20190717042225-c3de453c63f4
 github.com/alecthomas/units
-# github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a
+# github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496
 github.com/asaskevich/govalidator
 # github.com/beorn7/perks v1.0.1
 github.com/beorn7/perks/quantile
@@ -65,34 +65,33 @@ github.com/docker/libtrust
 github.com/evanphx/json-patch
 # github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 github.com/ghodss/yaml
-# github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
-github.com/globalsign/mgo/bson
-github.com/globalsign/mgo/internal/json
 # github.com/go-logr/logr v0.1.0
 github.com/go-logr/logr
 # github.com/go-logr/zapr v0.1.1
 github.com/go-logr/zapr
-# github.com/go-openapi/analysis v0.19.2
+# github.com/go-openapi/analysis v0.19.7
 github.com/go-openapi/analysis
 github.com/go-openapi/analysis/internal
-# github.com/go-openapi/errors v0.19.2
+# github.com/go-openapi/errors v0.19.3
 github.com/go-openapi/errors
 # github.com/go-openapi/jsonpointer v0.19.3
 github.com/go-openapi/jsonpointer
 # github.com/go-openapi/jsonreference v0.19.3
 github.com/go-openapi/jsonreference
-# github.com/go-openapi/loads v0.19.2
+# github.com/go-openapi/loads v0.19.4
 github.com/go-openapi/loads
-# github.com/go-openapi/runtime v0.19.0
+# github.com/go-openapi/runtime v0.19.11
 github.com/go-openapi/runtime
 # github.com/go-openapi/spec v0.19.6
 github.com/go-openapi/spec
-# github.com/go-openapi/strfmt v0.19.0
+# github.com/go-openapi/strfmt v0.19.4
 github.com/go-openapi/strfmt
-# github.com/go-openapi/swag v0.19.5
+# github.com/go-openapi/swag v0.19.7
 github.com/go-openapi/swag
-# github.com/go-openapi/validate v0.19.2
+# github.com/go-openapi/validate v0.19.6
 github.com/go-openapi/validate
+# github.com/go-stack/stack v1.8.0
+github.com/go-stack/stack
 # github.com/gobuffalo/envy v1.7.1
 github.com/gobuffalo/envy
 # github.com/gobuffalo/logger v1.0.1
@@ -118,7 +117,7 @@ github.com/gogo/protobuf/proto
 github.com/gogo/protobuf/sortkeys
 # github.com/golang/groupcache v0.0.0-20191027212112-611e8accdfc9
 github.com/golang/groupcache/lru
-# github.com/golang/protobuf v1.3.2
+# github.com/golang/protobuf v1.3.3
 github.com/golang/protobuf/proto
 github.com/golang/protobuf/ptypes/any
 github.com/golang/protobuf/ptypes
@@ -130,7 +129,7 @@ github.com/google/go-cmp/cmp/internal/diff
 github.com/google/go-cmp/cmp/internal/flags
 github.com/google/go-cmp/cmp/internal/function
 github.com/google/go-cmp/cmp/internal/value
-# github.com/google/gofuzz v1.0.0
+# github.com/google/gofuzz v1.1.0
 github.com/google/gofuzz
 # github.com/google/uuid v1.1.1
 github.com/google/uuid
@@ -155,7 +154,7 @@ github.com/heroku/docker-registry-client/registry
 github.com/imdario/mergo
 # github.com/joho/godotenv v1.3.0
 github.com/joho/godotenv
-# github.com/json-iterator/go v1.1.7
+# github.com/json-iterator/go v1.1.9
 github.com/json-iterator/go
 # github.com/konsorten/go-windows-terminal-sequences v1.0.2
 github.com/konsorten/go-windows-terminal-sequences
@@ -184,7 +183,7 @@ github.com/openshift/api/route/v1
 github.com/openshift/api/console/v1
 github.com/openshift/api/image/docker10
 github.com/openshift/api/image/dockerpre012
-# github.com/openshift/client-go v0.0.0-20200116152001-92a2713fa240 => github.com/openshift/client-go v0.0.0-20191125132246-f6563a70e19a
+# github.com/openshift/client-go v3.9.0+incompatible => github.com/openshift/client-go v0.0.0-20191125132246-f6563a70e19a
 github.com/openshift/client-go/image/clientset/versioned/typed/image/v1
 github.com/openshift/client-go/image/clientset/versioned/scheme
 # github.com/operator-framework/operator-lifecycle-manager v0.0.0-20191115003340-16619cd27fa5 => github.com/operator-framework/operator-lifecycle-manager v0.0.0-20200204235824-a0b8e7fd7a0e
@@ -237,9 +236,17 @@ github.com/tidwall/match
 github.com/tidwall/pretty
 # github.com/tidwall/sjson v1.0.4
 github.com/tidwall/sjson
-# go.uber.org/atomic v1.5.0
+# go.mongodb.org/mongo-driver v1.3.0
+go.mongodb.org/mongo-driver/bson
+go.mongodb.org/mongo-driver/bson/bsontype
+go.mongodb.org/mongo-driver/bson/primitive
+go.mongodb.org/mongo-driver/bson/bsoncodec
+go.mongodb.org/mongo-driver/bson/bsonrw
+go.mongodb.org/mongo-driver/x/bsonx/bsoncore
+go.mongodb.org/mongo-driver/bson/bsonoptions
+# go.uber.org/atomic v1.5.1
 go.uber.org/atomic
-# go.uber.org/multierr v1.3.0
+# go.uber.org/multierr v1.4.0
 go.uber.org/multierr
 # go.uber.org/tools v0.0.0-20190618225709-2cfd321de3ee
 go.uber.org/tools/update-license
@@ -250,19 +257,19 @@ go.uber.org/zap/internal/bufferpool
 go.uber.org/zap/buffer
 go.uber.org/zap/internal/color
 go.uber.org/zap/internal/exit
-# golang.org/x/crypto v0.0.0-20191028145041-f83a4685e152
+# golang.org/x/crypto v0.0.0-20200208060501-ecb85df21340
 golang.org/x/crypto/ssh/terminal
-# golang.org/x/lint v0.0.0-20190930215403-16217165b5de
+# golang.org/x/lint v0.0.0-20200130185559-910be7a94367
 golang.org/x/lint/golint
 golang.org/x/lint
-# golang.org/x/net v0.0.0-20191028085509-fe3aa8a45271
+# golang.org/x/net v0.0.0-20200202094626-16171245cfb2
 golang.org/x/net/http2
 golang.org/x/net/http/httpguts
 golang.org/x/net/http2/hpack
 golang.org/x/net/idna
 golang.org/x/net/context/ctxhttp
 golang.org/x/net/context
-# golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
+# golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 golang.org/x/oauth2
 golang.org/x/oauth2/google
 golang.org/x/oauth2/internal
@@ -270,7 +277,7 @@ golang.org/x/oauth2/jws
 golang.org/x/oauth2/jwt
 # golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 golang.org/x/sync/errgroup
-# golang.org/x/sys v0.0.0-20191028164358-195ce5e7f934
+# golang.org/x/sys v0.0.0-20200202164722-d101bd2416d5
 golang.org/x/sys/windows/svc/eventlog
 golang.org/x/sys/unix
 golang.org/x/sys/windows
@@ -283,7 +290,7 @@ golang.org/x/text/width
 golang.org/x/text/transform
 # golang.org/x/time v0.0.0-20191024005414-555d28b269f0
 golang.org/x/time/rate
-# golang.org/x/tools v0.0.0-20191029190741-b9c20aec41a5
+# golang.org/x/tools v0.0.0-20200207224406-61798d64f025
 golang.org/x/tools/go/analysis
 golang.org/x/tools/go/ast/astutil
 golang.org/x/tools/go/gcexportdata
@@ -295,11 +302,8 @@ golang.org/x/tools/go/ast/inspector
 golang.org/x/tools/go/types/typeutil
 golang.org/x/tools/go/internal/gcimporter
 golang.org/x/tools/go/internal/packagesdriver
-golang.org/x/tools/internal/gopathwalk
-golang.org/x/tools/internal/semver
-golang.org/x/tools/internal/span
-golang.org/x/tools/internal/fastwalk
-# golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7
+golang.org/x/tools/internal/packagesinternal
+# golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 golang.org/x/xerrors
 golang.org/x/xerrors/internal
 # gomodules.xyz/jsonpatch/v2 v2.0.1
@@ -321,7 +325,7 @@ gopkg.in/alecthomas/kingpin.v2
 gopkg.in/fsnotify.v1
 # gopkg.in/inf.v0 v0.9.1
 gopkg.in/inf.v0
-# gopkg.in/yaml.v2 v2.2.4
+# gopkg.in/yaml.v2 v2.2.8
 gopkg.in/yaml.v2
 # honnef.co/go/tools v0.0.1-2019.2.3
 honnef.co/go/tools/cmd/staticcheck
@@ -563,5 +567,5 @@ sigs.k8s.io/controller-runtime/pkg/webhook/admission
 sigs.k8s.io/controller-runtime/pkg/webhook/internal/certwatcher
 sigs.k8s.io/controller-runtime/pkg/webhook/internal/metrics
 sigs.k8s.io/controller-runtime/pkg/internal/controller/metrics
-# sigs.k8s.io/yaml v1.1.0
+# sigs.k8s.io/yaml v1.2.0
 sigs.k8s.io/yaml
